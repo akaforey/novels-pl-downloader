@@ -11,14 +11,19 @@ from urllib.parse import urljoin
 
 
 def main():
-    link = 'https://www.novels.pl/novel/Super-Gene-Optimization-Fluid-WN6/1/Chapter-1-Xia-Fei.html'
+    if os.path.exists('next_link.txt'):
+        with open('next_link.txt', 'r') as file:
+            link = file.readline()
+    else:
+        link = 'https://www.novels.pl/novel/Super-Gene-Optimization-Fluid-WN6/1/Chapter-1-Xia-Fei.html'
+
     # link should be to first chapter that should be downloaded
 
     # link = 'https://www.novels.pl/novel/NSHBA-WN/1_1/Chapter-1-Memories-of-a-Pill-God.html'
     # base_link = 'https://www.novels.pl'
     # directory = "nine-star-hegemon"
 
-    num_chapters = 30
+    num_chapters = 2
     split = urlsplit(link)
 
     base_link = split.scheme + '://' + split.netloc
@@ -26,6 +31,8 @@ def main():
     # print(split.scheme)
     directory = split.path.split('/')[-3]
     # print(directory)
+
+    # TODO gather urls as a list and pass the list to each function to avoid crawling twice
 
     download_audio(num_chapters, link, base_link, directory)
 
@@ -60,7 +67,10 @@ def download_text(num_chapters, link, base_link, directory):
         if next_link:
             link = base_link + next_link
             print(link)
+            with open('next_link.txt', 'w') as file:
+                file.write(link)
         time.sleep(0.5)
+
 
 
 def download_audio(num_chapters, link, base_link, directory):
@@ -97,6 +107,8 @@ def download_audio(num_chapters, link, base_link, directory):
         next_link = soup.find('li', class_='next').a.get('href')
         if next_link:
             link = base_link + next_link
+            with open('next_link.txt', 'w') as file:
+                file.write(link)
 
 
 def convert(inputName, outputName):
